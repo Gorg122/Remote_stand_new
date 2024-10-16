@@ -2,8 +2,6 @@ import subprocess
 import configparser
 import serial.tools.list_ports
 import sys
-from GUI import *
-
 
 def Board_search():
     global proseed_flag
@@ -33,12 +31,11 @@ def Board_search():
                                  text=True)
     cur_dev = curent_FPGA.stdout.rsplit('Info: ***************', 2)[0]
     print(cur_dev, "\n")
-    GUI.print_f_log("Список подключенных плат ПЛИС \n" + cur_dev)
     # p.device
     for p in serial.tools.list_ports.comports():
         print(p)
         p = str(p)
-        GUI.print_f_log("Список подключенных к COM портам устройств \n" + p)
+
     int1 = 1
     Arduino_port = "COM0"
     for p in serial.tools.list_ports.comports():
@@ -61,8 +58,4 @@ def Board_search():
                 int1 = int1 + 1
     print(Arduino_port)
     #Arduino_port = arduino_port.split()
-    GUI.print_f_log("Текущий порт подключения платы Ардуино " + Arduino_port)
-    GUI.proseed_flag = True
-    GUI.block_button()
-    GUI.change_status_find(1)
     return Arduino_port

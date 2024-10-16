@@ -6,9 +6,6 @@ import serial.tools.list_ports
 import subprocess
 import configparser
 
-import GUI
-
-
 def Find_Arduino(root_path):
     # Раздел статичных переменных
 
@@ -36,7 +33,7 @@ def Find_Arduino(root_path):
                 with open('Config.ini', 'w') as configfile:
                     config.write(configfile)
                 print(Arduino_path_1)
-                GUI.print_log("Текущий путь к avrdude.exe = ", Arduino_path_1)
+
 
     if os.path.exists(Arduino_path_2):  # Проверяем существует ли данный путь исполняемых файлов
         Arduino_path_2 = Arduino_path_2
@@ -51,7 +48,6 @@ def Find_Arduino(root_path):
                 with open('Config.ini', 'w') as configfile:
                     config.write(configfile)
                 print(Arduino_path_2)
-                GUI.print_log("Текущий путь к avrdude.conf = ", Arduino_path_2)
 
     # Путь до hex файла прошивки
     Project_path = config['Direc']['Path']
@@ -72,15 +68,12 @@ def Find_Arduino(root_path):
                     with open('Config.ini', 'w') as configfile:
                         config.write(configfile)
                     print(Arduino_hex_path)
-                    GUI.print_log("Текущий путь к файлу прошивки Arduino = ", Arduino_hex_path)
 
     # Ключ успешного ответа Serial порта
 
     start = config['Arduino']['arduino_key']
-
     # Ключ ошибки
     Error = "Arduino_problem"
-
     Arduino_name = config['Arduino']['arduino_name']
 
     int1 = 0
@@ -140,7 +133,7 @@ def Find_Arduino(root_path):
 
             if str(data).count(start[0]):  # В случае получения контрольной последовательности
                 print("Плата Ардуино готова к работе")
-                GUI.print_log("Плата Ардуино готова к работе")
+
                 neok = 1  # Переводим флаг перепрошивки платы в неактивное положение
                 Arduino_flash_complete = "no"  # Заполняем итоговую переменную перепрошивки платы
                 y += 1
@@ -148,7 +141,7 @@ def Find_Arduino(root_path):
     # Перепрошивка платы необходимой прошивкой
     if neok == 0:
         print("Плата Ардуино перепрошивается\n")
-        GUI.print_log("Плата Ардуино перепрошивается")
+
         ser.close()  # Перед перепрошивкой закрываем соединение через Serial порт
         # Перепрошиваем плату Arduino с помощью консольной команды, и выводим ответные сообщения в переменные
         Arduino_flash = subprocess.run('"{0}" -C"{1}" -v -patmega328p -carduino -P{2} -b57600 -D -Uflash:w:"{3}":i'.
@@ -168,7 +161,7 @@ def Find_Arduino(root_path):
         Arduino_flash_complete = Arduino_flash.stderr.split('\n')
         Arduino_flash_complete = str(Arduino_flash_complete[-3])  # Обрезаем возвращаемое значение до одной строки
         print(Arduino_flash_complete, '\n')
-        GUI.print_log("Перепрошивка платы Ардуино возвращает", Arduino_flash_complete)
+
 
         # Ещё раз открываем и закрываем Serial порт, чтобы он точно закрылся после перепрошивки
         ser.close()

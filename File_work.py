@@ -7,73 +7,20 @@ import sys
 import subprocess
 import configparser
 import pprint
-# import win32com.client
-# import win32com.client as client
-import stat
 from datetime import date
 from dateutil import parser
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-import GUI
+
 from Sof_to_FPGA import FPGA_flash
 from Find_arduino import Find_Arduino
-from Google_drive_upload import File_upload
-from Google_drive_upload import Folder_create
-from Google_drive_upload import Get_main_folder_id
-from Google_drive_upload import Old_files_delete
 
 # Счетчик комманд пользователя
 global command_num
 command_num = -1
 global pr_type
 pr_type = 2
-
-
-# Функция поиска файла сценария пользователя
-
-def Find_files_by_name(dir_path, filename):
-    for root, dirs, files in os.walk(dir_path):  # В цикле проходим все папки и файлы в корневой папке
-        if filename in files:  # Производим поиск по названию файла
-            filepath = root + '/' + filename  # Добавляем в путь папки и необходимый файл
-            return filepath
-    print("Такого файла нет")
-    return 0
-
-
-def Find_files_by_ext(dir_path, file_ext):
-    for root, dirs, files in os.walk(dir_path):  # В цикле проходим все папки и файлы в корневой папке
-        for file in files:
-            if file.endswith(file_ext):  # Производим поиск по расширению файла
-                filepath = root + '/' + file  # Добавляем в путь папки и необходимый файл
-                return filepath
-    print("Такого файла нет")
-    return 0
-
-
-def Script_file_detect(User_path_to_file, root_path, errs_path):
-    print(root_path)
-    # Создание файла с текущими ошибками в файле скрипта
-    errors_file = open(errs_path, "w")
-    script_file_path = "%"
-
-    # Поиск файла скрипта, создание переменной пути к данному файлу
-    if User_path_to_file != "":
-        for root, dirs, files in os.walk(root_path + '/' + User_path_to_file):
-            for file in files:
-                if file.endswith(".txt") \
-                        and not file.endswith(".sof") \
-                        and not (file.endswith("JTAG_config.txt")) \
-                        and not (file.endswith("Compil_result.txt")) \
-                        and not (file.endswith("errors.txt")) \
-                        and not (file.endswith("video_timing.txt")) \
-                        and not (file.endswith("requirements.txt")) \
-                        and not (file.endswith("gitignore.txt")) \
-                        and not (root == "db"):
-                    script_file_name = file
-                    script_file_path = root + '/' + script_file_name
-                    print(script_file_path)
-                    GUI.print_log("Путь к файлу сценария ", script_file_path)
 
     # Обработка случая отсутствия файла сценария, или возврат имени файла и пути к нему
     if not os.path.exists(script_file_path):
@@ -115,14 +62,13 @@ def Serial_delivery(arduino, cur_action, curent_pin, sleep, sleep_dur):
             data = str(arduino.readline().decode().strip('\r\n'))
             time.sleep(1)
             print(data, '\n')
-            GUI.print_log("Номер пина распознанный на плате ", data)
+
             # Изменяем состояние данного переключателя в словаре на текущее
             if sleep:
                 print("sleep for ", sleep_dur)
-                GUI.print_log("sleep for ", sleep_dur)
                 time.sleep(sleep_dur)
                 print("sleep is over")
-                GUI.print_log("sleep is over")
+
         except:
             print("Неверно указанный пин переключателя  ")
     else:
@@ -135,7 +81,7 @@ def Serial_delivery(arduino, cur_action, curent_pin, sleep, sleep_dur):
             data = str(arduino.readline().decode().strip('\r\n'))
             time.sleep(1)
             print(data, '\n')
-            GUI.print_log("Номер пина распознанный на плате ", data)
+
 
             comand_but2 = str(curent_pin) + "L"
             arduino.write(bytes(comand_but2, 'utf-8'))
@@ -145,14 +91,14 @@ def Serial_delivery(arduino, cur_action, curent_pin, sleep, sleep_dur):
             data = str(arduino.readline().decode().strip('\r\n'))
             time.sleep(1)
             print(data, '\n')
-            GUI.print_log("Номер пина распознанный на плате ", data)
+
             # Запускаем процесс ожидания задержки, указанной пользователем
             if sleep:
                 print("sleep for ", sleep_dur)
-                GUI.print_log("sleep for ", sleep_dur)
+
                 time.sleep(sleep_dur)
                 print("sleep is over")
-                GUI.print_log("sleep is over")
+
 
                 # Передаем сигнал о необходимости перевести в неактивное положение необходимую кнопку
                 comand_but2 = str(curent_pin) + "L"
@@ -163,7 +109,7 @@ def Serial_delivery(arduino, cur_action, curent_pin, sleep, sleep_dur):
                 data = str(arduino.readline().decode().strip('\r\n'))
                 time.sleep(1)
                 print(data, '\n')
-                GUI.print_log("Номер пина распознанный на плате ", data)
+
         except:
             print("Неверно указан номер кнопки")
     return switches
@@ -176,16 +122,11 @@ def Arduino_Serial(script_file_path, errs_path, Arduino_port):
     config = configparser.ConfigParser()
     config.read("Config.ini")
 
-    # config = configparser.ConfigParser()
-    # config.read("Config.ini")
-    # python_path = config['Python']['path']
-    # Выведем общее количество строк в файле
     print(len(re.findall(r"[\n']+?", open(script_file_path).read())))
     all_strings = len(re.findall(r"[\n']+?", open(script_file_path).read()))
 
     # Выведем количество без пустых строк
     print(len(re.findall(r"[\n']+", open(script_file_path).read())))
-    GUI.print_log("Строк в файле сценария ", len(re.findall(r"[\n']+", open(script_file_path).read())))
     strings = len(re.findall(r"[\n']+", open(script_file_path).read()))
 
     time.sleep(1)
@@ -215,17 +156,14 @@ def Arduino_Serial(script_file_path, errs_path, Arduino_port):
     while y != 1:
         poslanie = "Hello"
         print("Подключение к плате Ардуино")
-        GUI.print_log("Подключение к плате Ардуино")
         arduino.write(bytes(poslanie, 'utf-8'))
         data = str(arduino.readline().decode().strip('\r\n'))
         if str(data).count(start[0]):
             print("Контрольная последовательность получена")
-            GUI.print_log("Контрольная последовательность получена")
             y += 1
 
     # Начало передачи управляющих сигналов на плату Ардуино
     print("Начало передачи сигналов")
-    GUI.print_log("Начало передачи сигналов")
     # Выполняем проходку по непустым строкам файла сценария
     for i in range(strings):
         wrong_delay = 0
@@ -266,7 +204,6 @@ def Arduino_Serial(script_file_path, errs_path, Arduino_port):
         # В случае, если строка не пустая, определяем верно ли указаны номера кнопок и переключателей
         if lines[i] != "\n" and lines[i] != "":
             print(numbers)
-            GUI.print_log("Номер текущего пина ", numbers)
             # if (sleep != 1) and (cur_action != 2):
 
             # Если номер кнопки или переключателя больше 8 или меньше 1, данная команда не обрабатывается
@@ -323,7 +260,6 @@ def Arduino_Serial(script_file_path, errs_path, Arduino_port):
     input_file.close()
     errors_file.close()
     print("Total_commands = ", current_commands)
-    GUI.print_log("Всего команд в файле сценария ", current_commands)
     # = current_commands
     return ("Ok", current_commands)
 
@@ -355,7 +291,6 @@ def File_switch(User_path_to_file, root_path, sof_path, script_file_path, sof_fi
     # Изменяем текущую директорию на директорию пользователя
     os.chdir(users_dir)
     print(users_dir, '\n')
-    GUI.print_log("Текущая дирректория пользователя", users_dir)
 
     # Задаем стоковые значения файлов
     chek_errors_file = ""
@@ -392,48 +327,38 @@ def File_switch(User_path_to_file, root_path, sof_path, script_file_path, sof_fi
     # Перемещение файлов в конечную папку пользователя
     print("File with errors = " + er_name)
     er_name = "".join(er_name)
-    GUI.print_log("File with errors = " + er_name)
     if os.path.exists(errs_file_path):
         print("Перенос файла ошибок\n")
-        GUI.print_log("Перенос файла ошибок\n")
         shutil.copy(errs_file_path, users_dir + "/" + "Report" + "/" + er_name)
         time.sleep(1)
         os.remove(errs_file_path)
 
     print("File_compil = " + log_name)
-    GUI.print_log("File_compil = " + log_name)
     if os.path.exists(compil_path):
         print("Перенос файла отчета компиляции\n")
-        GUI.print_log("Перенос файла отчета компиляции\n")
         shutil.copy(compil_path, users_dir + "/" + "Report" + "/" + log_name)
         time.sleep(1)
         os.remove(compil_path)
 
     print("Config file = " + config_file)
-    GUI.print_log("Config file = " + config_file)
     if os.path.exists(config_path):
         print("Перенос файла отчета прошивки\n")
-        GUI.print_log("Перенос файла отчета прошивки\n")
         shutil.copy(config_path, users_dir + "/" + "Report" + "/" + config_file)
         time.sleep(1)
         os.remove(config_path)
 
     print("TXT_script_file = ", script_file_path)
-    GUI.print_log("TXT_script_file = ", script_file_path)
     print(script_file_path, '\n')
     if os.path.exists(script_file_path):
         print("Перенос файла сценария\n")
-        GUI.print_log("Перенос файла сценария\n")
         shutil.copy(script_file_path, users_dir + "/" + "Report" + "/" + script_file_name)
         time.sleep(1)
         os.remove(script_file_path)
 
     print("SOF_FILE = ", sof_path)
-    GUI.print_log("SOF_FILE = ", sof_path)
     print(sof_path, '\n')
     if os.path.exists(sof_path):
         print("Перенос файла прошивки\n")
-        GUI.print_log("Перенос файла прошивки\n")
         shutil.copy(sof_path, users_dir + "/" + "Report" + "/" + sof_file_name)
         time.sleep(3)
         os.remove(sof_path)
@@ -448,7 +373,6 @@ def File_switch(User_path_to_file, root_path, sof_path, script_file_path, sof_fi
         # Проверяем существует ли видео, и файл окончания записи видео
         if os.path.exists(video_path) and os.path.exists(root_path + "/video_done.txt"):
             print("Видео записано", '\n')
-            GUI.print_log("Видео записано")
             time.sleep(5)
 
             # Проивзодим копирование видео в конечную папку пользвоателя
@@ -458,7 +382,6 @@ def File_switch(User_path_to_file, root_path, sof_path, script_file_path, sof_fi
             if copy_chek == "OK":
                 print("\n")
                 print("Видео удаляется")
-                GUI.print_log("\nВидео удаляется")
                 os.remove(video_path)
             time.sleep(2)
 
@@ -469,7 +392,6 @@ def File_switch(User_path_to_file, root_path, sof_path, script_file_path, sof_fi
             # print(i)
             # В случае, если видео не найдено, выводим соответствующее сообщение
             print("Видео нет")
-            GUI.print_log("Видео нет")
             # Если видео не найдено выходим из цикла проверка на существование видео
             vid_exists = False
 
@@ -678,7 +600,6 @@ def File_deleting(folder):
                         file_metadata = {'Name': 1, 'Size': 20, 'Item type': "folder", 'Date modified': "28.05.2022",
                                          'Date created': "28.05.2022"}
                         date_modify = "6.12.2022"
-                        GUI.print_log("Данные о времени создания файлов получены")
                     print(date_modify)
                     today = date.today()
                     file_date_str = str(date_modify)
@@ -710,12 +631,12 @@ def File_deleting(folder):
 
 
 # Главная функция обработки файлов пользователя
-def Launch(User_path_to_file, root_path):
+def Launch(script_file_path, sof_file_path,  root_path):
     global command_num
     global pr_type
     errors_ = 0
     # Перемещаемся в текущую папку проекта
-    os.chdir(root_path)
+    #os.chdir(root_path)
 
     # Открываем файл настроек
     config = configparser.ConfigParser()
@@ -723,9 +644,9 @@ def Launch(User_path_to_file, root_path):
     config.read(config_path)
 
     # Выводим имеющиеся в файле конфигурации ключи
-    keys = config.keys()
-    for key in keys:
-        print(config[key])
+    # keys = config.keys()
+    # for key in keys:
+    #     print(config[key])
 
     # Читаем из файла конфигурации текущую папку проекта
     root_path = config['Direc']['Path']
@@ -741,24 +662,26 @@ def Launch(User_path_to_file, root_path):
     delay = ["delay"]
 
     # Запускаем функцию поиска файла прошивки
-    script_file_path, script_file_name = Script_file_detect(User_path_to_file=User_path_to_file,
+
+    # ВАЖНОЕ МЕСТО //
+    '''script_file_path, script_file_name = Script_file_detect(User_path_to_file=User_path_to_file,
                                                             root_path=root_path,
                                                             errs_path=errs_path)
+    '''
+    #script_file_path, script_file_name = "","" ТО ЧТО ПЕРЕДАЕТ КИРИЛЛ
+
     # Выводим результат выполнения данной функции
     print(script_file_path)
-    print(script_file_path)
-    GUI.print_log("Путь к файлу сценария ", script_file_path)
     # scetch_name = "scetch"
 
     # Если файл сценария существует
-    if os.path.exists(script_file_path):
+    if os.path.exists(script_file_path, sof_file_path):
         # Запускаем процесс обработки пользовательской прошивки
-        sof_path = "#"
-        sof_file_name = "#"
+        # sof_path = "#"
+        # sof_file_name = "#"
         # Запускаем функцию взаимодействия с платой Ардуино, выводим порт подключения
         Arduino_port = Find_Arduino(root_path=root_path)
         print(Arduino_port, '\n')
-        GUI.print_log("Порт подключения Ардуино ", Arduino_port)
         print(Arduino_port[0:3], '\n')
 
         # Обрабатываем ошибку поиска порта подключения платы Ардуино
@@ -766,7 +689,7 @@ def Launch(User_path_to_file, root_path):
             errors_file.write("Проблема при передаче управляющих сигналов, свяжитесь с преподавателем\n")
 
         # Запускаем функцию взаимодействия с платой ПЛИС
-        FPGA_chek, pr_type = FPGA_flash(User_path=User_path_to_file, FPGA_num=1, root_path=root_path)
+        FPGA_chek, pr_type = FPGA_flash(sof_file_path, FPGA_num=1, root_path=root_path)
         # Производим обработку ошибок компиляции проекта или прошивки платы
         if FPGA_chek != "OK":
             returncode = 1
@@ -781,7 +704,6 @@ def Launch(User_path_to_file, root_path):
                     sof_path = root + '/' + sof_file_name
 
                     print(sof_path)
-                    GUI.print_log("Путь к файлу прошивки ", sof_path)
 
         # Маркер существования видеофайла
         vid_chek = "video_none"
@@ -815,16 +737,13 @@ def Launch(User_path_to_file, root_path):
 
             # Выводим суммарные тайминги
             print("Время записи видео благодаря командам: ", strings)
-            GUI.print_log("Время записи видео благодаря командам: ", strings)
             print("Суммарное время слипов: ", sleep_timing)
-            GUI.print_log("Суммарное время слипов: ", sleep_timing)
             strings = strings + sleep_timing
             # Длительностт видео не может быть больше 2 минут
             if strings > 120:
                 strings = 120
             # Выводим суммарное время записи видео
             print("Суммарное время записи видео: ", strings)
-            GUI.print_log("Суммарное время записи видео: ", strings)
 
             # Создаем файл временных параметров записи видео
             video_file = open("video_timing.txt", "w")
@@ -851,7 +770,6 @@ def Launch(User_path_to_file, root_path):
             # Возвращаем флаг удачного завершения процесса передачи данных
             if serial == "OK":
                 print("Передача данных окончена")
-                GUI.print_log("Передача данных окончена")
 
             # Ожидаем окончания процесса записи видео
             Video_chek.wait()
@@ -860,7 +778,6 @@ def Launch(User_path_to_file, root_path):
                 time.sleep(0.5)
             # Выводим код возврата процесса записи видео
             print("Запись видео возвращает:", Video_chek.returncode)
-            GUI.print_log("Запись видео возвращает:", Video_chek.returncode)
             returncode = Video_chek.returncode
         # Если отсутствует файл прошивки или проект на ПЛИС, ошибка записывается в файл ошибок
         else:
@@ -904,26 +821,8 @@ def Launch(User_path_to_file, root_path):
         folder_delete = root_path + '/' + "Archived"
         file_delete = File_deleting(folder=folder_delete)
         print("Результат очистки архива = ", file_delete)
-        GUI.print_log("Результат очистки архива = ", file_delete)
         pp = pprint.PrettyPrinter(indent=4)
 
-        # Указание адреса авторизации
-        # SCOPES = ['https://www.googleapis.com/auth/drive']
-        #
-        # # Проверяем наличие файла токена
-        # token_name = 'ul_cad_1.json'
-        # token_path = root_path + '/' + token_name
-        # if not (os.path.exists(token_path)):
-        #     for root, dirs, files in os.walk('C:/'):
-        #         if files.find(token) != -1:
-        #             token_path = root + '/' + files
-        # elif os.path.exists(token_path):
-        #     SERVICE_ACCOUNT_FILE = token_path
-        #
-        #     # Подключаемся к соответствующему сервису с помощью сервисного аккаунта Google
-        #     credentials = service_account.Credentials.from_service_account_file(
-        #         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        #     service = build('drive', 'v3', credentials=credentials, static_discovery=False)
         credentials = service_account.Credentials.from_service_account_file(
             'C:/Project_930/Project_main/ulcad930-77c72048684c.json', scopes=[
                 'https://www.googleapis.com/auth/drive'])
@@ -932,7 +831,6 @@ def Launch(User_path_to_file, root_path):
         # Запускаем функцию определения главной папки
         main_folder_id = Get_main_folder_id(service=service)
         print("Id главной папки = ", main_folder_id)
-        GUI.print_log("Id главной папки = ", main_folder_id)
         if User_path_to_file == "":
             mail_name = "error_folder"
         else:
@@ -975,10 +873,12 @@ def Launch(User_path_to_file, root_path):
                 folder_send = "C:/Project_930/Project_main/Archived/" + mail_name
                 file_path = Find_files_by_ext(folder_send, "zip")
 
+
+                ##  ВАЖНОЕ МЕСТО!!!
+                file_path = '' ## То что получаем от Кирилла
                 # Получаем ссылку на скачивание данного архива
                 file_link = File_upload(service=service, folder_id=folder_id, file_path=file_path)
                 print("Ссылка на файл = ", file_link)
-                GUI.print_log("Ссылка на файл = ", file_link)
                 upload_file = False
             # delete_chek = Old_files_delete(main_folder_id, service)
             # print(delete_chek)
@@ -988,7 +888,6 @@ def Launch(User_path_to_file, root_path):
             #     GUI.print_log("Неудача при загрузке файлов на Google Drive")
     else:
         print("Отсутствует файл токена")
-        GUI.print_log("Отсутствует файл токена")
     return ("OK", pr_type, command_num, file_link, errors_)
 
 # Launch(User_path_to_file="student_zip/grisha.petuxov", root_path="C:/Project_930/Prototype_with_mail_bot_TO_EXE")
