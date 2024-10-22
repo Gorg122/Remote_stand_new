@@ -1,7 +1,0 @@
-sw1sss
-delay10
-sw9
-delay10
-sw10
-delay10
-dalay 40
