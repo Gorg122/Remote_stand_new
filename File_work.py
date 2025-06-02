@@ -268,7 +268,9 @@ def File_empty_chek(users_dir, file_name):
     chek_file = ""
     for files in os.listdir(users_dir):
         if files.find(file_name) != -1:
-            file_r = open(files)
+            print("path = ", users_dir)
+            print(files)
+            file_r = open(users_dir + '/' + files)
             # Записываем из файла первые 2 символа
             chek_file = file_r.read(2)
             file_name = files

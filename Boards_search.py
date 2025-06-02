@@ -2,9 +2,10 @@ import subprocess
 import configparser
 import serial.tools.list_ports
 import sys
+import os
 
 def Board_search():
-    global proseed_flag
+    #global proseed_flag
 
     root_path = "C:/Project_930/Project_main"
     config = configparser.ConfigParser()
@@ -59,3 +60,6 @@ def Board_search():
     print(Arduino_port)
     #Arduino_port = arduino_port.split()
     return Arduino_port
+
+if __name__ == '__main__':
+    Board_search()

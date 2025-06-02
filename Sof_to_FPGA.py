@@ -51,7 +51,7 @@ def FPGA_flash(User_path, sof_file_path , FPGA_num, root_path):
         # Выводим список всех подключенных плат средствами quartus_pgm.exe
         curent_FPGA = subprocess.run(Quartus_pgm_path + " -l", stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                      shell=True, text=True)
-        print(curent_FPGA, "\n")
+        print("Curent_fpga = ", curent_FPGA, "\n")
         # print(curent_FPGA.returncode,"\n") # флаг успешного выполнения команды
         # print(curent_FPGA.stdout,"\n") # Вывод консоли
         fpga_list = curent_FPGA.stdout.split("Info: Processing started:", 2)[0]
@@ -67,7 +67,8 @@ def FPGA_flash(User_path, sof_file_path , FPGA_num, root_path):
         if curent_FPGA.stdout.find(str) != -1:
             curent_port = curent_FPGA.stdout.split(str, 2)[1]
             curent_port = curent_port.split('\n', 1)[0]
-            print(curent_port)
+            print("curent port = ", curent_port)
+
         # Если такой платы не существует, выводим соответствую ошибку
         else:
             raise IOError("Плата ПЛИС с заданным индексом не найдена")
@@ -76,20 +77,22 @@ def FPGA_flash(User_path, sof_file_path , FPGA_num, root_path):
         # Выводим список устроств, подключенных к данному порту платы
         modules_FPGA = subprocess.run("{0} -c \"{1}\" -a".format(Quartus_pgm_path, curent_port), stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True, text=True)
-        i = 0
+        #i = 0
 
         # Отделяем от всего вывода консоли информацию о подключенных устроствах
         cur_dev = modules_FPGA.stdout.rsplit('Info: ***************', 2)[0]
         device_numbers = cur_dev.split('\n')
-
+        print("device_numbers = ", device_numbers)
         # В случае, если плата ПЛИс имеет более 1 ядра
         if len(device_numbers) > 4:
-            curent_device = modules_FPGA.stdout.split('\n', 3)[2]
+            #curent_device = modules_FPGA.stdout.split('\n', 3)[2]
             #################### Обратить внимание при использовании DE10-NANO ##########################
-            curent_device = str(curent_device[12:36])
-            print("Текущая плата =", curent_device)
-            print("Несколько ядер")
+            #curent_device = str(curent_device[12:36])
+
+            #print("Текущая плата =", curent_device)
+            #print("Несколько ядер")
             # Производим прошивку необходимого ядра платы ПЛИС
+            i = 2
             result = subprocess.run(
                 '{0} -m JTAG -c "{1}" -o p;{2}@{3}'.format(Quartus_pgm_path, curent_port, sof_path, i),
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
@@ -136,4 +139,4 @@ def FPGA_flash(User_path, sof_file_path , FPGA_num, root_path):
             else:
                 return ("Прошить плату не удалось", pr_type)
 
-# FPGA_flash(User_path="student_zip/grisha.petuxov", FPGA_num = 1)
+#FPGA_flash(User_path = "student_zip/petukhov", sof_file_path = "C:/Kirill_Stand_New/From_stand/Remote_stand_new/student_zip/petukhov/Firmware.sof" , root_path = "C:/Kirill_Stand_New/From_stand/Remote_stand_new", FPGA_num = 1)
