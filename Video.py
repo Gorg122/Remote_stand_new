@@ -59,7 +59,7 @@ def Video():
             out.write(frame)
             #cv2.imshow('frame',frame)
             #if cv2.waitKey(1) & 0xFF == ord('q') & int(tok - tik) >= 30:
-            if int(tok - tik) >= int(time_rest):
+            if int(tok - tik) >= int(time_rest*3):
                 break
         else:
             break

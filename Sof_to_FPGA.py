@@ -33,20 +33,10 @@ def FPGA_flash(User_path, sof_file_path , FPGA_num, root_path):
 
     # В случае если такого пути нет, производим поиск пути исполняемых файлов в корневой папке
     else:
-        # Задаем корневую папку
-        find_in = "C:/intelFPGA_lite"
-        name = "quartus_pgm.exe"
-        Find_files_by_name(find_in, name)
-        # Обновляем в файле настроек путь до quartus_pgm.exe
-        config['Quartus']['quartus_pgm_path'] = Quartus_pgm_path
-        with open('Config.ini', 'w') as configfile:
-            config.write(configfile)
-        print("Текущий путь к quartus_pgm.exe = ", Quartus_sh_path)
-
-    sof_path = sof_file_path
+        raise IOError("Путь Quartus_pgm_path не существует")
 
     # Если файл прошивки существует, начинаем поиск подключенной платы ПЛИС
-    if os.path.exists(sof_path):
+    if os.path.exists(sof_file_path):
         print("Выводим список подключенных устройств")
         # Выводим список всех подключенных плат средствами quartus_pgm.exe
         curent_FPGA = subprocess.run(Quartus_pgm_path + " -l", stdout=subprocess.PIPE, stderr=subprocess.PIPE,

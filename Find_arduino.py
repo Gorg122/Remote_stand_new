@@ -24,30 +24,14 @@ def Find_Arduino(root_path):
         Arduino_path_1 = Arduino_path_1
 
     else:
-        find_in = "C:/Program Files (x86)/Arduino/hardware/tools/avr"  # Задаем корневую папку
-        name = "avrdude.exe"
-        for root, dirs, files in os.walk(find_in):  # В цикле проходим все папки и файлы в корневой папке
-            if name in files:
-                Arduino_path_1 = '' + root + '/' + name  # Добавляем в путь папки и необходимый файл
-                config['Arduino']['arduino_avrdude_1'] = Arduino_path_1
-                with open('Config.ini', 'w') as configfile:
-                    config.write(configfile)
-                print(Arduino_path_1)
+        raise IOError("Путь Arduino avrdude.exe не существует")
 
 
     if os.path.exists(Arduino_path_2):  # Проверяем существует ли данный путь исполняемых файлов
         Arduino_path_2 = Arduino_path_2
 
     else:
-        find_in = "C:/Program Files (x86)/Arduino/hardware/tools/avr"  # Задаем корневую папку
-        name = "avrdude.conf"
-        for root, dirs, files in os.walk(find_in):  # В цикле проходим все папки и файлы в корневой папке
-            if name in files:
-                Arduino_path_2 = '' + root + '/' + name  # Добавляем в путь папки и необходимый файл
-                config['Arduino']['arduino_avrdude_2'] = Arduino_path_2
-                with open('Config.ini', 'w') as configfile:
-                    config.write(configfile)
-                print(Arduino_path_2)
+        raise IOError("Путь Arduino avrdude.conf не существует")
 
     # Путь до hex файла прошивки
     Project_path = config['Direc']['Path']
@@ -101,8 +85,8 @@ def Find_Arduino(root_path):
                     str2 = str(int1)  # Конвертируем номер порта из int в str:
                     Arduino_port = "COM" + str2  # Соединяем номер порта с его названием.
 
-                if Arduino_name in p[1] and Arduino_port in p[
-                    1]:  # Ещё раз ищем название платы Arduino и номер COM порта"
+                if Arduino_name in p[1] and Arduino_port in p[1]:
+                    # Ещё раз ищем название платы Arduino и номер COM порта"
                     # print ("Найдена  " + Arduino_name + Arduino_port + "\n")
                     int1 = 9  # Выходим из цикла.
 

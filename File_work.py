@@ -752,61 +752,6 @@ def Launch(script_file_path, sof_file_path,  root_path):
     #if User_path_to_file != '':
     chek_delete = Delete_files(root_path=root_path)
 
-    # new_path = root_path.replace('\\', '/', 2)
-    # folder_delete = root_path + '/' + "Archived"
-    # file_delete = File_deleting(folder=folder_delete)
-    # print("Результат очистки архива = ", file_delete)
-    # pp = pprint.PrettyPrinter(indent=4)
-    #
-    # credentials = service_account.Credentials.from_service_account_file(
-    #     'C:/Project_930/Project_main/ulcad930-77c72048684c.json', scopes=[
-    #         'https://www.googleapis.com/auth/drive'])
-    # service = build("drive", "v3", credentials=credentials)
-    #
-    # # Запускаем функцию определения главной папки
-    # main_folder_id = Get_main_folder_id(service=service)
-    # print("Id главной папки = ", main_folder_id)
-    # if User_path_to_file == "":
-    #     mail_name = "error_folder"
-    # else:
-    #     mail_name = User_path_to_file.split('/', 2)[1]
-    # upload_file = True
-    # # Запускаем процесс загрузки файлов до положительного исхода
-    # while upload_file:
-    #     # try:
-    #     # Запускаем функцию создания папки пользователя
-    #     folder_id = Folder_create(service=service, Users_drive=mail_name, main_folder_id=main_folder_id)
-    #     print("Id текущей папки = ", folder_id)
-    #     # Выгружаем файлы из папки, содержащей итоговый архив
-    #     if User_path_to_file == "":
-    #         err_path = root_path + '/student_zip/error.txt'
-    #         err_dir = root_path + '/student_zip'
-    #         error = open(err_path, 'w')
-    #         error.write("Проблема с обработкой архива в письме.\n Отправьте архив в формате zip")
-    #         error.close()
-    #         error_dir = root_path + '/Archived/Error'
-    #         os.mkdir(error_dir)
-    #         os.chdir(error_dir)
-    #         shutil.make_archive('result', 'zip', err_dir)
-    #         time.sleep(1)
-    #         file_link = File_upload(service=service, folder_id=folder_id, file_path=err_path)
-    #         os.chdir(root_path)
-    #         shutil.rmtree(error_dir)
-    #         main_dir = root_path + '/student_zip'
-    #         for root, dirs, files in os.walk(main_dir):
-    #             for direc in dirs:
-    #                 shutil.rmtree(root + '/' + direc)
-    #             for file in files:
-    #                 os.remove(root + '/' + file)
-    #         upload_file = False
-    #     else:
-    #         # for folders, file in os.listdir(folder_send):
-    #         #     if file.endswith("zip"):
-    #         #         file_path = folder_send + "/" + file
-    #         print("Тот самый путь---------------------------------------------")
-    #         print(folder_send)
-    #         folder_send = "C:/Project_930/Project_main/Archived/" + mail_name
-    #         file_path = Find_files_by_ext(folder_send, "zip")
 
 
     ##  ВАЖНОЕ МЕСТО!!!
